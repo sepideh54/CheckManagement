@@ -1,0 +1,24 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>../../Downloads/workflow-manager-server-svgrepo-com.svg</file>
+    <file>../../Downloads/search-file-svgrepo-com.svg</file>
+    <file>../../Downloads/search-alt-2-svgrepo-com.svg</file>
+    <file>../../Downloads/save-svgrepo-com (1).svg</file>
+    <file>../../Downloads/save-svgrepo-com.svg</file>
+    <file>../../Downloads/save-save-the-document-svgrepo-com.svg</file>
+    <file>../../Downloads/process-svgrepo-com.svg</file>
+    <file>../../Downloads/output-svgrepo-com.svg</file>
+    <file>../../Downloads/Icons8-Ios7-Logos-Excel-Copyrighted.512.png</file>
+    <file>../../Downloads/edit-svgrepo-com (3).svg</file>
+    <file>../../Downloads/edit-03-svgrepo-com.svg</file>
+    <file>../../Downloads/delete-1487-svgrepo-com.svg</file>
+    <file>../../Downloads/save-item-1411-svgrepo-com.svg</file>
+    <file>../../Downloads/save-item-1408-svgrepo-com.svg</file>
+    <file>../../Downloads/Icons8-Ios7-Data-Workflow.512.png</file>
+    <file>../../Downloads/edit-ui-svgrepo-com.svg</file>
+    <file>../../Downloads/edit-profile-svgrepo-com.svg</file>
+    <file>../../Downloads/delete-recycle-bin-trash-can-svgrepo-com.svg</file>
+    <file>../../Downloads/delete-profile-svgrepo-com.svg</file>
+  </qresource>
+  <qresource/>
+</RCC>
