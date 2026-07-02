@@ -37,7 +37,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>381</width>
+      <width>371</width>
       <height>371</height>
      </rect>
     </property>
@@ -85,7 +85,7 @@ QGroupBox::title{
     border-radius:8px;
     border:1px solid #B8BDC5;
     color:white;
-    font-size:10pt;
+    font-size:12pt;
     font-weight:bold;
     padding:6px;
 }
@@ -108,7 +108,7 @@ QPushButton:pressed{
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -156,7 +156,7 @@ QPushButton:pressed{
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -207,7 +207,7 @@ QPushButton:pressed{
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>361</width>
+       <width>351</width>
        <height>271</height>
       </rect>
      </property>
@@ -315,7 +315,16 @@ QTextEdit:focus{
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_Codemoshtari_2"/>
+       <widget class="QLineEdit" name="lineEdit_Codemoshtari_2">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="10" column="0">
        <widget class="QLabel" name="label_Address_2">
@@ -333,16 +342,65 @@ QTextEdit:focus{
        </widget>
       </item>
       <item row="7" column="1">
-       <widget class="QComboBox" name="comboBox_Shax"/>
+       <widget class="QComboBox" name="comboBox_Shax">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="8" column="1">
-       <widget class="QComboBox" name="comboBox_Vaziyatsamaneh"/>
+       <widget class="QComboBox" name="comboBox_Vaziyatsamaneh">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QDateEdit" name="dateEdit_Tarixamaliyat"/>
+       <widget class="QDateEdit" name="dateEdit_Tarixamaliyat">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="dateTime">
+         <datetime>
+          <hour>0</hour>
+          <minute>0</minute>
+          <second>0</second>
+          <year>2000</year>
+          <month>2</month>
+          <day>1</day>
+         </datetime>
+        </property>
+        <property name="currentSection">
+         <enum>QDateTimeEdit::DaySection</enum>
+        </property>
+        <property name="displayFormat">
+         <string>d/m/yy</string>
+        </property>
+        <property name="timeSpec">
+         <enum>Qt::LocalTime</enum>
+        </property>
+       </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="comboBox_Noeamaliyat"/>
+       <widget class="QComboBox" name="comboBox_Noeamaliyat">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -352,7 +410,7 @@ QTextEdit:focus{
      <rect>
       <x>390</x>
       <y>10</y>
-      <width>721</width>
+      <width>701</width>
       <height>371</height>
      </rect>
     </property>
@@ -412,7 +470,16 @@ QGroupBox::title{
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="lineEdit_Mablagcheck"/>
+       <widget class="QLineEdit" name="lineEdit_Mablagcheck">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_Shomarehsayadi">
@@ -426,6 +493,16 @@ QGroupBox::title{
         </property>
         <property name="text">
          <string>شماره صیادی  :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="comboBox_Banksaderkonandeh">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+         </font>
         </property>
        </widget>
       </item>
@@ -460,10 +537,28 @@ QGroupBox::title{
        </widget>
       </item>
       <item row="0" column="3">
-       <widget class="QLineEdit" name="lineEdit_Codecheck"/>
+       <widget class="QLineEdit" name="lineEdit_Codecheck">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_Shomarehsayadi"/>
+       <widget class="QLineEdit" name="lineEdit_Shomarehsayadi">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="label__Mablagcheck">
@@ -477,6 +572,16 @@ QGroupBox::title{
         </property>
         <property name="text">
          <string>مبلغ چک  :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QComboBox" name="comboBox_Saderkonandeh">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+         </font>
         </property>
        </widget>
       </item>
@@ -495,22 +600,44 @@ QGroupBox::title{
         </property>
        </widget>
       </item>
-      <item row="3" column="3">
-       <widget class="QComboBox" name="comboBox_Saderkonandeh"/>
-      </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="comboBox_Banksaderkonandeh"/>
-      </item>
       <item row="4" column="3">
-       <widget class="QComboBox" name="comboBox_Tarixsarresid"/>
+       <widget class="QDateEdit" name="dateEdit_Tarixamaliyat_2">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="dateTime">
+         <datetime>
+          <hour>0</hour>
+          <minute>0</minute>
+          <second>0</second>
+          <year>2000</year>
+          <month>2</month>
+          <day>1</day>
+         </datetime>
+        </property>
+        <property name="currentSection">
+         <enum>QDateTimeEdit::DaySection</enum>
+        </property>
+        <property name="displayFormat">
+         <string>d/m/yy</string>
+        </property>
+        <property name="timeSpec">
+         <enum>Qt::LocalTime</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
     <widget class="QGroupBox" name="groupBox_Moshtaridokmeha_2">
      <property name="geometry">
       <rect>
-       <x>30</x>
-       <y>310</y>
+       <x>50</x>
+       <y>300</y>
        <width>621</width>
        <height>61</height>
       </rect>
@@ -520,7 +647,7 @@ QGroupBox::title{
     border-radius:8px;
     border:1px solid #B8BDC5;
     color:white;
-    font-size:10pt;
+    font-size:12pt;
     font-weight:bold;
     padding:6px;
 }
@@ -543,7 +670,7 @@ QPushButton:pressed{
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -574,7 +701,7 @@ QPushButton:pressed{
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -605,7 +732,7 @@ QPushButton:pressed{
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -637,7 +764,7 @@ background-color: rgb(59, 130, 246);</string>
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -668,7 +795,7 @@ background-color: rgb(59, 130, 246);</string>
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -833,7 +960,7 @@ background-color: rgb(59, 130, 246);</string>
      <property name="font">
       <font>
        <family>B Yekan</family>
-       <pointsize>13</pointsize>
+       <pointsize>12</pointsize>
        <weight>50</weight>
        <bold>false</bold>
       </font>
@@ -845,7 +972,7 @@ background-color: rgb(59, 130, 246);</string>
      <rect>
       <x>1100</x>
       <y>10</y>
-      <width>361</width>
+      <width>351</width>
       <height>371</height>
      </rect>
     </property>
@@ -882,9 +1009,9 @@ QGroupBox::title{
     <widget class="QGroupBox" name="groupBox_Moshtaridokmeha">
      <property name="geometry">
       <rect>
-       <x>0</x>
+       <x>20</x>
        <y>300</y>
-       <width>351</width>
+       <width>321</width>
        <height>61</height>
       </rect>
      </property>
@@ -893,7 +1020,7 @@ QGroupBox::title{
     border-radius:8px;
     border:1px solid #B8BDC5;
     color:white;
-    font-size:10pt;
+    font-size:12pt;
     font-weight:bold;
     padding:6px;
 }
@@ -916,7 +1043,7 @@ QPushButton:pressed{
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -947,7 +1074,7 @@ QPushButton:pressed{
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -978,7 +1105,7 @@ QPushButton:pressed{
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -1010,7 +1137,7 @@ background-color: rgb(59, 130, 246);</string>
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -1043,8 +1170,8 @@ background-color: rgb(59, 130, 246);</string>
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>341</width>
-       <height>261</height>
+       <width>331</width>
+       <height>271</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">
@@ -1064,7 +1191,16 @@ background-color: rgb(59, 130, 246);</string>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="lineEdit_Shomarehtelsabet"/>
+       <widget class="QLineEdit" name="lineEdit_Shomarehtelsabet">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_Namesherkat">
@@ -1112,10 +1248,28 @@ background-color: rgb(59, 130, 246);</string>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="lineEdit_Namesherkat"/>
+       <widget class="QLineEdit" name="lineEdit_Namesherkat">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_Codemoshtari"/>
+       <widget class="QLineEdit" name="lineEdit_Codemoshtari">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label__Namemoshtari">
@@ -1157,10 +1311,26 @@ QTextEdit:focus{
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QLineEdit" name="lineEdit_Shomarehtelhamrah"/>
+       <widget class="QLineEdit" name="lineEdit_Shomarehtelhamrah">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_Namemoshtari"/>
+       <widget class="QLineEdit" name="lineEdit_Namemoshtari">
+        <property name="font">
+         <font>
+          <family>B Yekan</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+       </widget>
       </item>
       <item row="5" column="0">
        <widget class="QLabel" name="label_Shomaretelhamrah">
@@ -1184,9 +1354,9 @@ QTextEdit:focus{
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>430</y>
+      <y>440</y>
       <width>1441</width>
-      <height>471</height>
+      <height>431</height>
      </rect>
     </property>
     <property name="font">
@@ -1234,7 +1404,7 @@ QGroupBox::title{
      <property name="geometry">
       <rect>
        <x>-10</x>
-       <y>40</y>
+       <y>30</y>
        <width>1451</width>
        <height>351</height>
       </rect>
@@ -1285,6 +1455,30 @@ QTableWidget::item:selected {
     color: white;
 }</string>
      </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     </property>
+     <property name="showGrid">
+      <bool>true</bool>
+     </property>
+     <property name="gridStyle">
+      <enum>Qt::SolidLine</enum>
+     </property>
+     <property name="sortingEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="cornerButtonEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="rowCount">
+      <number>50</number>
+     </property>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>175</number>
+     </attribute>
      <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
       <bool>false</bool>
      </attribute>
@@ -1295,7 +1489,7 @@ QTableWidget::item:selected {
       <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
-      <number>21</number>
+      <number>40</number>
      </attribute>
      <attribute name="verticalHeaderShowSortIndicator" stdset="0">
       <bool>false</bool>
@@ -1303,6 +1497,56 @@ QTableWidget::item:selected {
      <attribute name="verticalHeaderStretchLastSection">
       <bool>false</bool>
      </attribute>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
      <column>
       <property name="text">
        <string>شماره صیادی</string>
@@ -1355,8 +1599,8 @@ QTableWidget::item:selected {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>390</y>
-       <width>341</width>
+       <y>370</y>
+       <width>171</width>
        <height>61</height>
       </rect>
      </property>
@@ -1365,7 +1609,7 @@ QTableWidget::item:selected {
     border-radius:8px;
     border:1px solid #B8BDC5;
     color:white;
-    font-size:10pt;
+    font-size:12pt;
     font-weight:bold;
     padding:6px;
 }
@@ -1388,7 +1632,7 @@ QPushButton:pressed{
         <property name="font">
          <font>
           <family>B Yekan</family>
-          <pointsize>10</pointsize>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -1414,41 +1658,10 @@ QPushButton:pressed{
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_jostojomoshtari_4">
-        <property name="font">
-         <font>
-          <family>B Yekan</family>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="cursor">
-         <cursorShape>OpenHandCursor</cursorShape>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(239, 68, 68);</string>
-        </property>
-        <property name="text">
-         <string>حذف</string>
-        </property>
-        <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/newPrefix/Downloads/delete-recycle-bin-trash-can-svgrepo-com.svg</normaloff>:/newPrefix/Downloads/delete-recycle-bin-trash-can-svgrepo-com.svg</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>17</width>
-          <height>17</height>
-         </size>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_Codecheck_2">
+   <widget class="QLineEdit" name="lineEdit_Extar">
     <property name="geometry">
      <rect>
       <x>404</x>
@@ -1457,32 +1670,38 @@ QPushButton:pressed{
       <height>41</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>B Yekan</family>
+      <pointsize>20</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
     <property name="autoFillBackground">
      <bool>false</bool>
     </property>
     <property name="styleSheet">
-     <string notr="true">QLabel {
+     <string notr="true">
     background: transparent;
     border: none;
     color: red;
-    font-size: 13px;
-    font-weight: bold;font: 75 14pt &quot;B Yekan&quot;;
-}
+     font-weight: bold;
 </string>
+    </property>
+    <property name="frame">
+     <bool>false</bool>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1465</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
  </widget>
  <resources>
   <include location="icons.qrc"/>
