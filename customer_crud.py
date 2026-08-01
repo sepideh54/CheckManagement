@@ -281,8 +281,30 @@ def generate_customer_code():
 
     return new_code
 
+# -----------------------
+# Gent All Customers
+# -----------------------
+def get_all_customers():
 
+    conn = get_connection()
 
+    if conn is None:
+        return []
+
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT customer_id, customer_name
+        FROM customer_table
+        ORDER BY customer_name
+    """)
+
+    customers = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return customers
 # -----------------------
 # Test
 # -----------------------

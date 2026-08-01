@@ -1,79 +1,81 @@
-from database import Database
-
-
+from database import get_connection
 # ----------------------------
 # Create
 # ----------------------------
 def create_check(
+    check_code,
     sayadi_number,
     customer_id,
     amount,
     due_date,
     bank_id,
-    issuer_name,
     front_image,
     back_image,
     description
 ):
 
-    db = Database()
-    connection = db.connect()
+    conn = get_connection()
 
-    cursor = connection.cursor()
+    if conn is None:
+        return False
+
+    cursor = conn.cursor()
 
     query = """
     INSERT INTO check_table
     (
+        check_code,
         sayadi_number,
         customer_id,
         amount,
         due_date,
         bank_id,
-        issuer_name,
         front_image,
         back_image,
-        description
+        description,
+        created_at
     )
-    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    VALUES
+    (%s,%s,%s,%s,%s,%s,%s,%s,%s,CURDATE())
     """
 
     values = (
+        check_code,
         sayadi_number,
         customer_id,
         amount,
         due_date,
         bank_id,
-        issuer_name,
         front_image,
         back_image,
         description
     )
 
     cursor.execute(query, values)
-    connection.commit()
 
-    print("Check added successfully.")
+    conn.commit()
+
+    check_id = cursor.lastrowid
 
     cursor.close()
-    db.close()
+    conn.close()
 
+    return check_id
 
 # ----------------------------
 # Read All
 # ----------------------------
 def get_all_checks():
 
-    db = Database()
-    connection = db.connect()
-
-    cursor = connection.cursor(dictionary=True)
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
 
     cursor.execute("SELECT * FROM check_table")
 
     checks = cursor.fetchall()
 
     cursor.close()
-    db.close()
+    conn.close()
 
     return checks
 
@@ -83,10 +85,12 @@ def get_all_checks():
 # ----------------------------
 def get_check_by_sayadi(sayadi_number):
 
-    db = Database()
-    connection = db.connect()
+    conn = get_connection()
 
-    cursor = connection.cursor(dictionary=True)
+    if conn is None:
+        return
+
+    cursor = conn.cursor()
 
     query = """
     SELECT *
@@ -99,7 +103,7 @@ def get_check_by_sayadi(sayadi_number):
     check = cursor.fetchone()
 
     cursor.close()
-    db.close()
+    conn.close()
 
     return check
 
@@ -109,43 +113,57 @@ def get_check_by_sayadi(sayadi_number):
 # ----------------------------
 def update_check(
     sayadi_number,
+    customer_id,
     amount,
     due_date,
+    bank_id,
     issuer_name,
+    front_image,
+    back_image,
     description
 ):
 
-    db = Database()
-    connection = db.connect()
+    conn = get_connection()
 
-    cursor = connection.cursor()
+    if conn is None:
+        return False
+
+    cursor = conn.cursor()
 
     query = """
     UPDATE check_table
     SET
+        customer_id=%s,
         amount=%s,
         due_date=%s,
+        bank_id=%s,
         issuer_name=%s,
+        front_image=%s,
+        back_image=%s,
         description=%s
     WHERE sayadi_number=%s
     """
 
     values = (
+        customer_id,
         amount,
         due_date,
+        bank_id,
         issuer_name,
+        front_image,
+        back_image,
         description,
         sayadi_number
     )
 
     cursor.execute(query, values)
 
-    connection.commit()
-
-    print("Check updated successfully.")
+    conn.commit()
 
     cursor.close()
-    db.close()
+    conn.close()
+
+    return True
 
 
 # ----------------------------
@@ -153,10 +171,8 @@ def update_check(
 # ----------------------------
 def delete_check(sayadi_number):
 
-    db = Database()
-    connection = db.connect()
-
-    cursor = connection.cursor()
+    conn = get_connection()
+    cursor = conn.cursor()
 
     query = """
     DELETE FROM check_table
@@ -165,14 +181,58 @@ def delete_check(sayadi_number):
 
     cursor.execute(query, (sayadi_number,))
 
-    connection.commit()
+    conn.commit()
 
     print("Check deleted successfully.")
 
     cursor.close()
-    db.close()
+    conn.close()
 
 
+## -----------------------
+# Generate Check Code
+# -----------------------
+def generate_checkinfo_code():
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT check_code
+        FROM check_table
+        ORDER BY check_id DESC
+        LIMIT 1
+        """
+    )
+
+    result = cursor.fetchone()
+
+    if not result:
+
+        new_code = "CH001"
+
+    else:
+
+        last_code = result[0]
+
+        try:
+
+            number = int(last_code[2:]) + 1
+
+            new_code = f"CH{number:03d}"
+
+        except ValueError:
+
+            new_code = "CH001"
+
+
+    cursor.close()
+    conn.close()
+
+    return new_code
+ 
 # ----------------------------
 # Test
 # ----------------------------

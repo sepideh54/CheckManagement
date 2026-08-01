@@ -1,4 +1,4 @@
-from database import Database
+from database import get_connection
 
 
 # -----------------------
@@ -13,8 +13,7 @@ def create_operation(
     sayad_system_status
 ):
 
-    db = Database()
-    connection = db.connect()
+    connection = get_connection()
 
     cursor = connection.cursor()
 
@@ -41,21 +40,22 @@ def create_operation(
     )
 
     cursor.execute(query, values)
+
     connection.commit()
 
-    print("Operation added successfully.")
+    operation_id = cursor.lastrowid
 
     cursor.close()
-    db.close()
+  
 
+    return operation_id
 
 # -----------------------
 # Read All Operations
 # -----------------------
 def get_all_operations():
 
-    db = Database()
-    connection = db.connect()
+    connection = get_connection()
 
     cursor = connection.cursor(dictionary=True)
 
@@ -64,7 +64,7 @@ def get_all_operations():
     operations = cursor.fetchall()
 
     cursor.close()
-    db.close()
+   
 
     return operations
 
@@ -74,8 +74,7 @@ def get_all_operations():
 # -----------------------
 def get_operation(operation_id):
 
-    db = Database()
-    connection = db.connect()
+    connection = get_connection()
 
     cursor = connection.cursor(dictionary=True)
 
@@ -90,7 +89,7 @@ def get_operation(operation_id):
     operation = cursor.fetchone()
 
     cursor.close()
-    db.close()
+
 
     return operation
 
@@ -107,9 +106,7 @@ def update_operation(
     sayad_system_status
 ):
 
-    db = Database()
-    connection = db.connect()
-
+    connection = get_connection()
     cursor = connection.cursor()
 
     query = """
@@ -139,7 +136,7 @@ def update_operation(
     print("Operation updated successfully.")
 
     cursor.close()
-    db.close()
+
 
 
 # -----------------------
@@ -147,8 +144,7 @@ def update_operation(
 # -----------------------
 def delete_operation(operation_id):
 
-    db = Database()
-    connection = db.connect()
+    connection = get_connection()
 
     cursor = connection.cursor()
 
@@ -164,7 +160,7 @@ def delete_operation(operation_id):
     print("Operation deleted successfully.")
 
     cursor.close()
-    db.close()
+  
 
 
 # -----------------------

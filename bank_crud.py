@@ -120,8 +120,28 @@ def delete_bank(bank_id):
 
     cursor.close()
     db.close()
+    
+    
+def get_all_banks():
+    conn = get_connection()
 
+    if conn is None:
+        return []
 
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT bank_id, bank_name
+        FROM bank_table
+        ORDER BY bank_name
+    """)
+
+    banks = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return banks
 # -----------------------
 # Test
 # -----------------------
