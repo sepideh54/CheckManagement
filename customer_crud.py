@@ -274,7 +274,6 @@ def generate_customer_code():
             new_code = "C001"
 
 
-
     cursor.close()
     conn.close()
 
@@ -282,7 +281,7 @@ def generate_customer_code():
     return new_code
 
 # -----------------------
-# Gent All Customers
+# Get All Customers
 # -----------------------
 def get_all_customers():
 

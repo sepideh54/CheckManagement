@@ -70,7 +70,11 @@ def get_all_checks():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM check_table")
+    cursor.execute("""
+    SELECT *
+    FROM check_table
+    WHERE is_deleted = FALSE
+    """)
 
     checks = cursor.fetchall()
 
@@ -88,14 +92,33 @@ def get_check_by_sayadi(sayadi_number):
     conn = get_connection()
 
     if conn is None:
-        return
+        return None
 
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
 
     query = """
-    SELECT *
-    FROM check_table
+    SELECT
+        c.check_id,
+        c.check_code,
+        c.sayadi_number,
+        cu.customer_name,
+        b.bank_name,
+        c.amount,
+        c.due_date,
+        c.description,
+        c.front_image,
+        c.back_image
+
+    FROM check_table c
+
+    LEFT JOIN customer_table cu
+        ON c.customer_id = cu.customer_id
+
+    LEFT JOIN bank_table b
+        ON c.bank_id = b.bank_id
+
     WHERE sayadi_number=%s
+    AND is_deleted = FALSE
     """
 
     cursor.execute(query, (sayadi_number,))
@@ -111,13 +134,67 @@ def get_check_by_sayadi(sayadi_number):
 # ----------------------------
 # Update
 # ----------------------------
+# def update_check(
+#     sayadi_number,
+#     customer_id,
+#     amount,
+#     due_date,
+#     bank_id,
+#     issuer_name,
+#     front_image,
+#     back_image,
+#     description
+# ):
+
+#     conn = get_connection()
+
+#     if conn is None:
+#         return False
+
+#     cursor = conn.cursor()
+
+#     query = """
+#     UPDATE check_table
+#     SET
+#         customer_id=%s,
+#         amount=%s,
+#         due_date=%s,
+#         bank_id=%s,
+#         issuer_name=%s,
+#         front_image=%s,
+#         back_image=%s,
+#         description=%s
+#     WHERE sayadi_number=%s
+#     """
+
+#     values = (
+#         customer_id,
+#         amount,
+#         due_date,
+#         bank_id,
+#         issuer_name,
+#         front_image,
+#         back_image,
+#         description,
+#         sayadi_number
+#     )
+
+#     cursor.execute(query, values)
+
+#     conn.commit()
+
+#     cursor.close()
+#     conn.close()
+
+#     return True
 def update_check(
+    check_id,
+    check_code,
     sayadi_number,
     customer_id,
     amount,
     due_date,
     bank_id,
-    issuer_name,
     front_image,
     back_image,
     description
@@ -133,27 +210,29 @@ def update_check(
     query = """
     UPDATE check_table
     SET
+        check_code=%s,
+        sayadi_number=%s,
         customer_id=%s,
         amount=%s,
         due_date=%s,
         bank_id=%s,
-        issuer_name=%s,
         front_image=%s,
         back_image=%s,
         description=%s
-    WHERE sayadi_number=%s
+    WHERE check_id=%s
     """
 
     values = (
+        check_code,
+        sayadi_number,
         customer_id,
         amount,
         due_date,
         bank_id,
-        issuer_name,
         front_image,
         back_image,
         description,
-        sayadi_number
+        check_id
     )
 
     cursor.execute(query, values)
@@ -165,27 +244,47 @@ def update_check(
 
     return True
 
-
 # ----------------------------
 # Delete
 # ----------------------------
-def delete_check(sayadi_number):
+def delete_check(check_id):
 
     conn = get_connection()
+
+    if conn is None:
+        return False
+
     cursor = conn.cursor()
 
-    query = """
-    DELETE FROM check_table
-    WHERE sayadi_number=%s
-    """
+    try:
 
-    cursor.execute(query, (sayadi_number,))
+        query = """
+        UPDATE check_table
+        SET is_deleted = TRUE
+        WHERE check_id = %s
+        """
 
-    conn.commit()
+        cursor.execute(
+            query,
+            (check_id,)
+        )
 
-    print("Check deleted successfully.")
+        conn.commit()
 
-    cursor.close()
+        return True
+
+
+    except Exception as e:
+
+        conn.rollback()
+        print(e)
+        return False
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
     conn.close()
 
 

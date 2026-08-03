@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from ui_main import Ui_MainWindow
 from customer_crud import (
@@ -16,11 +17,19 @@ from validators import is_persian_text
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QDate
 import jdatetime
-
-from check_crud import create_check, generate_checkinfo_code
 from operation_crud import create_operation
-
 from customer_crud import get_all_customers
+from PyQt5.QtWidgets import QFileDialog
+from check_crud import (
+    create_check,
+    get_check_by_sayadi,
+    generate_checkinfo_code,
+    update_check,
+    delete_check)
+import shutil
+
+
+
 
 class MainApp(QMainWindow):
 
@@ -30,10 +39,13 @@ class MainApp(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.selected_customer_id = None
+        self.selected_check_id = None
+        self.front_image_path = None
+        self.back_image_path = None
 
         self.setup_logic()
 
-
+  #-------------------------------------logic -----------------------------------
     
     def setup_logic(self):
             
@@ -60,7 +72,7 @@ class MainApp(QMainWindow):
                 self.delete_customer
             )
 
-            # ========= Operation =========
+            # ========= Check =========
             self.ui.lineEdit_Codecheck.setReadOnly(True)
             self.ui.lineEdit_Codecheck.setStyleSheet(
                 "background-color:#F5F5DC;"
@@ -69,171 +81,251 @@ class MainApp(QMainWindow):
                 self.save_checkinfo
             )
             self.ui.dateEdit_Tarixamaliyat_2.setDate(QDate.currentDate())
+
+            self.ui.pushButton_Axroyecheck.clicked.connect(
+            self.select_front_image
+            )
+            self.ui.pushButton_Axposhtecheck.clicked.connect(
+            self.select_back_image
+            )
+            self.front_image_path = None
+            self.back_image_path = None
+
+            self.ui.pushButton_jostojocheck.clicked.connect(
+            self.search_check
+            )
+
+            self.ui.tableWidget.setColumnCount(8)
+
+            self.ui.tableWidget.setHorizontalHeaderLabels(
+                [
+                    "شماره صیادی",
+                    "کد چک",
+                    "مشتری",
+                    "مبلغ",
+                    "وضعیت فعلی",
+                    "تعداد عملیات",
+                    "آخرین عملیات",
+                    "تاریخ سررسید"
+                ]
+            )
+            self.ui.pushButton_Virayeshcheck.clicked.connect(
+            self.edit_check
+            )
+            self.ui.pushButton_Hazfcheck.clicked.connect(
+            self.delete_check_info
+)
+
             # ========= Customer =========
             self.load_customers()
-
             self.load_banks()
+            
+
+    #---------------------------------- جدول اطلاعات چک ----------------------------       
 
     # ------------------------
     # ثبت چک 
     # ------------------------
+    def select_front_image(self):
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "انتخاب تصویر روی چک",
+            "",
+            "Images (*.png *.jpg *.jpeg *.bmp)"
+        )
+
+        if file_path:
+
+            self.front_image_path = file_path
+
+            QMessageBox.information(
+                self,
+                "موفق",
+                "تصویر انتخاب شد."
+            )
+
+    def save_front_image(self, check_code):
+
+        if not self.front_image_path:
+            return None
+
+        folder = os.path.join(
+            os.getcwd(),
+            "images",
+            "checks"
+        )
+
+        os.makedirs(folder, exist_ok=True)
+
+        extension = os.path.splitext(
+            self.front_image_path
+        )[1]
+
+        new_name = f"{check_code}_front{extension}"
+
+        destination = os.path.join(
+            folder,
+            new_name
+        )
+
+        shutil.copy2(
+            self.front_image_path,
+            destination
+        )
+
+        return os.path.join(
+            "images",
+            "checks",
+            new_name
+        )
+
+
+    def select_back_image(self):
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "انتخاب تصویر پشت چک",
+            "",
+            "Images (*.png *.jpg *.jpeg *.bmp)"
+        )
+
+        if file_path:
+
+            self.back_image_path = file_path
+
+            QMessageBox.information(
+                self,
+                "موفق",
+                "تصویر انتخاب شد."
+            )
+
+    def save_back_image(self, check_code):
+
+        if not self.back_image_path:
+            return None
+
+        folder = os.path.join(
+            os.getcwd(),
+            "images",
+            "checks"
+        )
+
+        os.makedirs(folder, exist_ok=True)
+
+        extension = os.path.splitext(
+            self.back_image_path
+        )[1]
+
+        new_name = f"{check_code}_back{extension}"
+
+        destination = os.path.join(
+            folder,
+            new_name
+        )
+
+        shutil.copy2(
+            self.back_image_path,
+            destination
+        )
+
+        return os.path.join(
+            "images",
+            "checks",
+            new_name
+        )        
+
+
     def save_checkinfo(self):
 
         try:
+                            
+            check_code = generate_checkinfo_code()
+            customer_id = self.ui.comboBox_Saderkonandeh.currentData()
 
-                # -------------------------
-                # Check Code
-                # -------------------------
-                check_code = generate_checkinfo_code()
+            if not customer_id:
 
-
-                # -------------------------
-                # Customer
-                # -------------------------
-                customer_id = self.ui.comboBox_Saderkonandeh.currentData()
-
-                print("Customer text:", self.ui.comboBox_Shax.currentText())
-                print("Customer data:", self.ui.comboBox_Shax.currentData())
-                if not customer_id:
-
-                    QMessageBox.warning(
-                        self,
-                        "خطا",
-                        "ابتدا مشتری را انتخاب کنید"
-                    )
-                    return
-
-                # -------------------------
-                # Check Information
-                # -------------------------
-
-                sayadi_number = self.ui.lineEdit_Shomarehsayadi.text().strip()
-
-                amount = self.ui.lineEdit_Mablagcheck.text().strip()
-
-                description = (
-                    self.ui.textEdit_Tozihatetelatcheck
-                    .toPlainText()
-                    .strip()
-                )
-
-
-                due_date = (
-                    self.ui.dateEdit_Tarixamaliyat_2
-                    .date()
-                    .toString("yyyy-MM-dd")
-                )
-
-
-                # بانک
-                bank_name = (
-                    self.ui.comboBox_Banksaderkonandeh
-                    .currentText()
-                )
-
-
-                # TODO:
-                # بعداً از bank_crud می‌گیریم
-                bank_id = None
-
-
-
-                # -------------------------
-                # Images
-                # -------------------------
-
-                front_image = None
-                back_image = None
-
-
-
-                # -------------------------
-                # Insert Check
-                # -------------------------
-
-                check_id = create_check(
-                    check_code,
-                    sayadi_number,
-                    customer_id,
-                    amount,
-                    due_date,
-                    bank_id,
-                    front_image,
-                    back_image,
-                    description
-                )
-
-
-                if not check_id:
-
-                    QMessageBox.warning(
-                        self,
-                        "خطا",
-                        "ثبت چک انجام نشد"
-                    )
-                    return
-
-
-
-                # -------------------------
-                # First Operation
-                # -------------------------
-
-                operation_date = (
-                    self.ui.dateEdit_Tarixamaliyat_2
-                    .date()
-                    .toString("yyyy-MM-dd")
-                )
-
-
-                operation_type = (
-                    self.ui.comboBox_Noeamaliyat
-                    .currentText()
-                )
-
-
-                related_person = ""
-
-
-                operation_description = (
-                    "ثبت اولیه چک"
-                )
-
-
-                sayad_status = (
-                    self.ui.comboBox_Vaziyatsamaneh
-                    .currentText()
-                )
-
-
-                create_operation(
-                    check_id,
-                    operation_type,
-                    operation_date,
-                    related_person,
-                    operation_description,
-                    sayad_status
-                )
-
-
-                # -------------------------
-                # Show Code
-                # -------------------------
-
-                self.ui.lineEdit_Codecheck.setText(
-                    check_code
-                )
-
-
-                QMessageBox.information(
+                QMessageBox.warning(
                     self,
-                    "موفق",
-                    "چک با موفقیت ثبت شد"
+                    "خطا",
+                    "ابتدا مشتری را انتخاب کنید"
                 )
+                return
+
+            sayadi_number = self.ui.lineEdit_Shomarehsayadi.text().strip()
+
+            amount = self.ui.lineEdit_Mablagcheck.text().strip()
+
+            description = (
+                self.ui.textEdit_Tozihatetelatcheck
+                .toPlainText()
+                .strip()
+            )
+
+            due_date = (
+                self.ui.dateEdit_Tarixamaliyat_2
+                .date()
+                .toString("yyyy-MM-dd")
+            )
+            
+            bank_name = (
+                self.ui.comboBox_Banksaderkonandeh
+                .currentText()
+            )
+
+            # TODO:
+            # بعداً از bank_crud می‌گیریم
+            bank_id = None
+        
+            front_image = self.save_front_image(check_code)
+            back_image = self.save_back_image(check_code)
 
 
-            # پاک کردن فرم
-            # self.clear_check_form()
+            # -------------------------
+            # Insert Check
+            # -------------------------
+
+            check_id = create_check(
+                check_code,
+                sayadi_number,
+                customer_id,
+                amount,
+                due_date,
+                bank_id,
+                front_image,
+                back_image,
+                description
+            )
+
+
+            if not check_id:
+
+                QMessageBox.warning(
+                    self,
+                    "خطا",
+                    "ثبت چک انجام نشد"
+                )
+                return
+
+
+            # -------------------------
+            # Show Code
+            # -------------------------
+
+            self.ui.lineEdit_Codecheck.setText(
+                check_code
+            )
+
+
+            QMessageBox.information(
+                self,
+                "موفق",
+                "چک با موفقیت ثبت شد"
+            )
+
+
+        # پاک کردن فرم
+        # self.clear_check_form()
 
 
 
@@ -244,9 +336,182 @@ class MainApp(QMainWindow):
                     "خطا",
                     str(e)
                 )
+                
+    def edit_check(self):
+
+        if self.selected_check_id is None:
+
+            QMessageBox.warning(
+                self,
+                "خطا",
+                "ابتدا یک چک را جستجو و انتخاب کنید."
+            )
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "تأیید ویرایش",
+            "آیا از ویرایش این چک مطمئن هستید؟",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.No:
+            return
+
+        check_code = self.ui.lineEdit_Codecheck.text().strip()
+
+        sayadi_number = self.ui.lineEdit_Shomarehsayadi.text().strip()
+
+        customer_id = self.ui.comboBox_Saderkonandeh.currentData()
+
+        amount = self.ui.lineEdit_Mablagcheck.text().strip()
+
+        due_date = (
+            self.ui.dateEdit_Tarixamaliyat_2
+            .date()
+            .toString("yyyy-MM-dd")
+        )
+
+        bank_id = self.ui.comboBox_Banksaderkonandeh.currentData()
+
+        description = (
+            self.ui.textEdit_Tozihatetelatcheck
+            .toPlainText()
+            .strip()
+        )
+
+        front_image = self.front_image_path
+
+        back_image = self.back_image_path
+
+        success = update_check(
+            self.selected_check_id,
+            check_code,
+            sayadi_number,
+            customer_id,
+            amount,
+            due_date,
+            bank_id,
+            front_image,
+            back_image,
+            description
+        )
+
+        if success:
+
+            QMessageBox.information(
+                self,
+                "موفق",
+                "اطلاعات چک با موفقیت ویرایش شد."
+            )
+
+            self.search_check()
+
+
+
+    def search_check(self):
+
+        sayadi_number = self.ui.lineEdit_Shomarehsayadi.text().strip()
+
+        if not sayadi_number:
+
+            QMessageBox.warning(
+                self,
+                "خطا",
+                "شماره صیادی را وارد کنید."
+            )
+            return
+
+        check = get_check_by_sayadi(sayadi_number)
+
+        if not check:
+
+            QMessageBox.information(
+                self,
+                "نتیجه",
+                "چکی پیدا نشد."
+            )
+
+            return
+
+
+        self.selected_check_id = check["check_id"]
+        print("Selected check:", self.selected_check_id)
+
+        self.ui.tableWidget.insertRow(0)
+
+        self.ui.tableWidget.setItem(
+            0, 0,
+            QTableWidgetItem(check["sayadi_number"])
+        )
+
+        self.ui.tableWidget.setItem(
+            0, 1,
+            QTableWidgetItem(check["check_code"])
+        )
+
+        self.ui.tableWidget.setItem(
+            0, 2,
+            QTableWidgetItem(check["customer_name"])
+        )
+
+        self.ui.tableWidget.setItem(
+            0, 3,
+            QTableWidgetItem(str(check["amount"]))
+        )
+
+        self.ui.tableWidget.setItem(
+            0, 7,
+            QTableWidgetItem(str(check["due_date"]))
+        )
+
+    def delete_check_info(self):
+        print("DELETE BUTTON CLICKED")
+
+        if self.selected_check_id is None:
+
+            self.ui.lineEdit_Extar.setText(
+                "ابتدا یک چک را انتخاب کنید."
+            )
+            return
+
+
+        reply = QMessageBox.question(
+            self,
+            "تأیید حذف",
+            "آیا مطمئن هستید؟\nچک از لیست فعال حذف می‌شود.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+
+        if reply == QMessageBox.No:
+            return
+
+
+        result = delete_check(
+            self.selected_check_id
+        )
+
+
+        if result:
+
+            self.ui.lineEdit_Extar.setText(
+                "چک با موفقیت حذف شد."
+            )
+
+            self.selected_check_id = None
+
+            self.search_check()
+
+    #  --------------------------- جدول مشتری ------------------------------ 
+    
+          
     # ------------------------
     # پاک کردن جدول مشتری
     # ------------------------
+
     def clear_customer_fields(self):
 
         self.ui.lineEdit_Codemoshtari.clear()
@@ -481,9 +746,6 @@ class MainApp(QMainWindow):
     def load_customers(self):
 
         customers = get_all_customers()
-
-        print("Customers:", customers)
-
         self.ui.comboBox_Saderkonandeh.clear()
 
         for customer in customers:
