@@ -304,6 +304,8 @@ def get_all_customers():
     conn.close()
 
     return customers
+
+
 # -----------------------
 # Test
 # -----------------------

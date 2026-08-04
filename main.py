@@ -26,9 +26,37 @@ from check_crud import (
     generate_checkinfo_code,
     update_check,
     delete_check)
+from operation_crud import (create_operation,generate_operation_code)    
 import shutil
 
+import jdatetime
+from PyQt5.QtWidgets import QCalendarWidget
+from PyQt5.QtCore import QDate
 
+from PyQt5.QtCore import Qt, QLocale
+
+
+class JalaliCalendarWidget(QCalendarWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.setGridVisible(True)
+        self.setLocale(QLocale(QLocale.Persian))
+
+
+
+    def paintCell(self, painter, rect, date):
+
+        jalali = jdatetime.date.fromgregorian(
+            date=date.toPyDate()
+        )
+
+        painter.drawText(
+            rect,
+            Qt.AlignCenter,
+            str(jalali.day)
+        )
 
 
 class MainApp(QMainWindow):
@@ -48,7 +76,14 @@ class MainApp(QMainWindow):
   #-------------------------------------logic -----------------------------------
     
     def setup_logic(self):
-            
+            self.set_jalali_date()
+            calendar = JalaliCalendarWidget()
+
+            self.ui.dateEdit_Tarixamaliyat.setCalendarWidget(calendar)
+
+            self.ui.dateEdit_Tarixamaliyat.setDisplayFormat("yyyy/MM/dd")
+
+
             # ========= Customer =========
 
             self.ui.lineEdit_Codemoshtari.setReadOnly(True)
@@ -119,10 +154,53 @@ class MainApp(QMainWindow):
             # ========= Customer =========
             self.load_customers()
             self.load_banks()
+
+            # ========= Operation =========
+            self.ui.pushButton_Sabtmoshtari_2.clicked.connect(
+            self.save_operation)
+
+            self.ui.comboBox_Noeamaliyat.addItems([
+                "ثبت اولیه",
+                "ارسال",
+                "وصول",
+                "برگشت",
+                "انتقال",
+                "ابطال"
+            ])
+
+
+            self.ui.comboBox_Vaziyatsamaneh.addItems([
+                "ثبت نشده",
+                "ثبت شده",
+                "تأیید شده",
+                "رد شده"
+            ])
+
+            self.load_customers_to_operation()
+            self.ui.lineEdit_Codemoshtari_2.setReadOnly(True)
+            self.ui.lineEdit_Codemoshtari_2.setStyleSheet("""
+                QLineEdit {
+                    background-color: #e8f4ff;
+                    color: #0057a8;
+                    font-weight: bold;
+                }
+            """)
             
 
-    #---------------------------------- جدول اطلاعات چک ----------------------------       
+ #---------------------------------- جدول اطلاعات چک ----------------------------       
+    def set_jalali_date(self):
 
+        today = jdatetime.date.today()
+
+        self.ui.dateEdit_Tarixamaliyat.setDisplayFormat("yyyy/MM/dd")
+
+        self.ui.dateEdit_Tarixamaliyat.setDate(
+            QDate(
+                today.year,
+                today.month,
+                today.day
+            )
+    )
     # ------------------------
     # ثبت چک 
     # ------------------------
@@ -771,6 +849,68 @@ class MainApp(QMainWindow):
 
         for bank in banks:
             self.ui.comboBox_Banksaderkonandeh.addItem(bank)
+
+ #  --------------------------- جدول عملیات ------------------------------ 
+    def save_operation(self):
+    
+        operation_code = generate_operation_code(self.selected_check_id)
+
+        self.ui.lineEdit_Codemoshtari_2.setText(operation_code)
+
+        operation_type = (
+            self.ui.comboBox_Noeamaliyat.currentText()
+        )
+
+        operation_date = (
+            self.ui.dateEdit_Tarixamaliyat.date().toString("yyyy-MM-dd")
+        )
+
+        related_person = (
+            self.ui.comboBox_Shax.currentText()
+        )
+
+        sayad_system_status = (
+            self.ui.comboBox_Vaziyatsamaneh.currentText()
+        )
+
+        description = (
+        self.ui.textEdit_Address_2.toPlainText().strip()
+         )
+
+        create_operation(
+            self.selected_check_id,
+            operation_code,
+            operation_type,
+            operation_date,
+            related_person,
+            description,
+            sayad_system_status
+        )
+    
+        print("قبل از پیام")
+
+        self.ui.lineEdit_Extar.setText("عملیات با موفقیت ثبت شد.")
+
+        print("بعد از پیام")
+
+        QTimer.singleShot(
+            3000,
+            self.clear_customer_fields
+        )
+
+
+    def load_customers_to_operation(self):
+
+        customers = get_all_customers()
+
+        self.ui.comboBox_Shax.clear()
+
+        for customer in customers:
+            self.ui.comboBox_Shax.addItem(
+                customer["customer_name"],
+                customer["customer_id"]
+            )
+
 
 
 

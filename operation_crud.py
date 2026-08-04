@@ -6,6 +6,7 @@ from database import get_connection
 # -----------------------
 def create_operation(
     check_id,
+    operation_code,
     operation_type,
     operation_date,
     related_person,
@@ -19,25 +20,27 @@ def create_operation(
 
     query = """
     INSERT INTO operation
-    (
+        (
         check_id,
+        operation_code,
         operation_type,
         operation_date,
         related_person,
         description,
         sayad_system_status
-    )
-    VALUES (%s,%s,%s,%s,%s,%s)
-    """
+        )
+        VALUES (%s,%s,%s,%s,%s,%s,%s)
+         """
 
     values = (
         check_id,
+        operation_code,
         operation_type,
         operation_date,
         related_person,
         description,
         sayad_system_status
-    )
+        )
 
     cursor.execute(query, values)
 
@@ -160,13 +163,34 @@ def delete_operation(operation_id):
     print("Operation deleted successfully.")
 
     cursor.close()
-  
+
+# -----------------------
+# generate_operation_code
+# -----------------------
+def generate_operation_code(check_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COUNT(*) 
+        FROM operation
+        WHERE check_id=%s
+    """, (check_id,))
+
+    count = cursor.fetchone()[0]
+
+    code = f"CH{check_id:03d}-OP{count+1:03d}"
+
+    cursor.close()
+    conn.close()
+
+    return code
 
 
 # -----------------------
 # Test
 # -----------------------
-if __name__ == "__main__":
+if __name__ == "__operation_code__":
 
     operations = get_all_operations()
 
