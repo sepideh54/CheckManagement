@@ -43,7 +43,6 @@ def _validate_operation_fields(operation_code, operation_type, operation_date,
 
     person = (str(related_person).strip() or None) if related_person is not None else None
     status = (str(sayad_system_status).strip() or None) if sayad_system_status is not None else None
-    description = (str(description_value).strip() or None) if (description_value := None) else None
     if person is not None and len(person) > 150:
         raise ValueError("Related person cannot exceed 150 characters.")
     if status is not None and len(status) > 100:
