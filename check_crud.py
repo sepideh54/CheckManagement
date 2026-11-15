@@ -1,4 +1,5 @@
 """CRUD operations for cheques (checks)."""
+from decimal import Decimal, InvalidOperation
 from database import get_connection
 
 
@@ -31,11 +32,11 @@ def create_check(check_code, sayadi_number, customer_id, amount, due_date,
     if not all((check_code, sayadi_number, customer_id, amount, due_date)):
         raise ValueError("Check code, Sayadi number, customer, amount and due date are required.")
     try:
-        numeric_amount = float(amount)
-    except (TypeError, ValueError):
+        numeric_amount = Decimal(str(amount))
+    except (InvalidOperation, TypeError, ValueError):
         raise ValueError("Check amount must be numeric.")
-    if numeric_amount <= 0:
-        raise ValueError("Check amount must be greater than zero.")
+    if not numeric_amount.is_finite() or numeric_amount <= 0:
+        raise ValueError("Check amount must be a finite value greater than zero.")
     return _execute(
         """INSERT INTO check_table
            (check_code, sayadi_number, customer_id, amount, due_date, bank_id,
