@@ -92,3 +92,33 @@ python main.py
 - Start the app from the project directory so relative image paths resolve correctly.
 - The repository contains the Python source, Qt UI files, generated Qt resources, and image assets required by the current application.
 - A successful installation setup is not the same as a verified end-to-end test. Database compatibility and all GUI workflows still need regression testing before relying on this application for important financial records.
+
+
+## Database inspection and backup
+
+For an existing database, do not run `schema.sql` as an upgrade script. First create a verified backup, then inspect the live schema:
+
+```bash
+bash scripts/backup_mysql.sh
+mysql --host=127.0.0.1 --user=check_manager --password check_management < scripts/audit_schema.sql
+```
+
+The audit script is read-only and reports tables, columns, constraints and indexes. Compare its output with `schema.sql` before planning any migration. No automatic migration is performed by this repository.
+
+The backup script reads credentials from `.env`, writes compressed dumps under `backups/`, and restricts local file permissions. Store an additional copy of backups on a separate encrypted device or trusted backup location. Periodically test restoration into a separate database; a backup that has never been restored is not verified.
+
+## Automated tests
+
+Run the fast, database-independent validation tests with:
+
+```bash
+python -m unittest discover -s tests -v
+python -m compileall -q .
+python -m pip check
+```
+
+These tests verify input contracts only. They do not prove live MySQL CRUD, schema compatibility, GUI behavior, concurrency safety, or successful backup restoration. Those checks must be completed against a disposable test database before production use.
+
+## Current development hardening
+
+The `hardening/crud-and-data-integrity` branch consolidates CRUD connection cleanup, removes the duplicate customer listing implementation, adds input guards, connects the bank lookup table to the cheque form, and adds a read-only schema audit and backup utility. Review and test this branch before merging it into `master`.
