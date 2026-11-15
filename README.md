@@ -99,7 +99,7 @@ python main.py
 For an existing database, do not run `schema.sql` as an upgrade script. First create a verified backup, then inspect the live schema:
 
 ```bash
-bash scripts/backup_mysql.sh
+python scripts/backup_mysql.sh
 mysql --host=127.0.0.1 --user=check_manager --password check_management < scripts/audit_schema.sql
 ```
 
