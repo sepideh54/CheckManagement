@@ -1,4 +1,5 @@
 """CRUD operations for check lifecycle events."""
+from datetime import date
 from database import get_connection
 
 
@@ -25,18 +26,53 @@ def _execute(query, values=(), *, fetch=None, dictionary=False):
         connection.close()
 
 
+def _validate_operation_fields(operation_code, operation_type, operation_date,
+                               related_person, sayad_system_status):
+    code = (operation_code or "").strip()
+    kind = (operation_type or "").strip()
+    if not code or not kind or not operation_date:
+        raise ValueError("Operation code, type and date are required.")
+    if len(code) > 40 or len(kind) > 100:
+        raise ValueError("Operation code or type exceeds the supported length.")
+    try:
+        parsed_date = date.fromisoformat(str(operation_date))
+    except (TypeError, ValueError):
+        raise ValueError("Operation date must use the YYYY-MM-DD format.")
+    if parsed_date.isoformat() != str(operation_date):
+        raise ValueError("Operation date must use the YYYY-MM-DD format.")
+
+    person = (str(related_person).strip() or None) if related_person is not None else None
+    status = (str(sayad_system_status).strip() or None) if sayad_system_status is not None else None
+    description = (str(description_value).strip() or None) if (description_value := None) else None
+    if person is not None and len(person) > 150:
+        raise ValueError("Related person cannot exceed 150 characters.")
+    if status is not None and len(status) > 100:
+        raise ValueError("Sayad system status cannot exceed 100 characters.")
+    return code, kind, parsed_date.isoformat(), person, status
+
+
 def create_operation(check_id, operation_code, operation_type,
                      operation_date, related_person=None, description=None,
                      sayad_system_status=None):
-    if not all((check_id, operation_code, operation_type, operation_date)):
-        raise ValueError("Check, operation code, type and date are required.")
+    try:
+        check_identifier = int(check_id)
+    except (TypeError, ValueError):
+        raise ValueError("Check ID must be a positive integer.")
+    if check_identifier <= 0:
+        raise ValueError("Check ID must be a positive integer.")
+    code, kind, event_date, person, status = _validate_operation_fields(
+        operation_code, operation_type, operation_date,
+        related_person, sayad_system_status,
+    )
+    if description is not None:
+        description = str(description).strip() or None
     return _execute(
         """INSERT INTO operation
            (check_id, operation_code, operation_type, operation_date,
             related_person, description, sayad_system_status)
            VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-        (check_id, operation_code, operation_type, operation_date,
-         related_person, description, sayad_system_status),
+        (check_identifier, code, kind, event_date,
+         person, description, status),
         fetch="id",
     )
 
@@ -65,14 +101,25 @@ def get_operation(operation_id):
 def update_operation(operation_id, operation_type, operation_date,
                      related_person=None, description=None,
                      sayad_system_status=None):
-    if not all((operation_id, operation_type, operation_date)):
-        raise ValueError("Operation ID, type and date are required.")
+    try:
+        identifier = int(operation_id)
+    except (TypeError, ValueError):
+        raise ValueError("Operation ID must be a positive integer.")
+    if identifier <= 0:
+        raise ValueError("Operation ID must be a positive integer.")
+    existing = _validate_operation_fields(
+        "EXISTING", operation_type, operation_date,
+        related_person, sayad_system_status,
+    )
+    _, kind, event_date, person, status = existing
+    if description is not None:
+        description = str(description).strip() or None
     return bool(_execute(
         """UPDATE operation SET operation_type=%s, operation_date=%s,
                related_person=%s, description=%s, sayad_system_status=%s
            WHERE operation_id=%s""",
-        (operation_type, operation_date, related_person, description,
-         sayad_system_status, operation_id),
+        (kind, event_date, person, description,
+         status, identifier),
     ))
 
 
