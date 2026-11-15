@@ -32,6 +32,33 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_crud.create_check("CH001", "123", 1, 0, "2026-01-01")
 
+
+    def test_check_amount_accepts_two_decimal_places(self):
+        self.assertEqual(
+            check_crud._validate_amount("1250.50"),
+            check_crud.Decimal("1250.50"),
+        )
+
+    def test_check_amount_rejects_more_than_two_decimal_places(self):
+        with self.assertRaises(ValueError):
+            check_crud._validate_amount("10.001")
+
+    def test_check_amount_rejects_nan_and_infinity(self):
+        for value in ("NaN", "Infinity", "-Infinity"):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    check_crud._validate_amount(value)
+
+    def test_check_amount_rejects_value_above_decimal_18_2(self):
+        with self.assertRaises(ValueError):
+            check_crud._validate_amount("10000000000000000.00")
+
+    def test_check_update_uses_same_amount_validation(self):
+        with self.assertRaises(ValueError):
+            check_crud.update_check(
+                1, "CH001", "123", 1, "10.999", "2026-01-01"
+            )
+
     def test_operation_requires_check(self):
         with self.assertRaises(ValueError):
             operation_crud.create_operation(None, "OP001", "ارسال", "2026-01-01")
