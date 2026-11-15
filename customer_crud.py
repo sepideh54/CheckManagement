@@ -31,19 +31,49 @@ def _run(query, values=(), *, fetch=None, dictionary=False):
         connection.close()
 
 
+def _clean_optional(value, field_name, max_length):
+    if value is None:
+        return None
+    cleaned = str(value).strip()
+    if not cleaned:
+        return None
+    if len(cleaned) > max_length:
+        raise ValueError(f"{field_name} cannot exceed {max_length} characters.")
+    return cleaned
+
+
+def _validate_customer(customer_code, customer_name, organization_name,
+                       customer_phone, customer_mobile):
+    code = (customer_code or "").strip()
+    name = (customer_name or "").strip()
+    if not code or not name:
+        raise ValueError("Customer code and name are required.")
+    if len(code) > 20:
+        raise ValueError("Customer code cannot exceed 20 characters.")
+    if len(name) > 150:
+        raise ValueError("Customer name cannot exceed 150 characters.")
+    return (
+        code, name,
+        _clean_optional(organization_name, "Organization name", 200),
+        _clean_optional(customer_phone, "Phone", 30),
+        _clean_optional(customer_mobile, "Mobile", 30),
+    )
+
+
 def create_customer(customer_code, customer_name, organization_name=None,
                     customer_phone=None, customer_mobile=None,
                     customer_address=None):
-    if not customer_code or not customer_name or not customer_name.strip():
-        raise ValueError("Customer code and name are required.")
+    code, name, organization, phone, mobile = _validate_customer(
+        customer_code, customer_name, organization_name,
+        customer_phone, customer_mobile,
+    )
     return _run(
         """INSERT INTO customer_table
            (customer_code, customer_name, organization_name, customer_phone,
             customer_mobile, customer_address)
            VALUES (%s, %s, %s, %s, %s, %s)""",
-        (customer_code.strip(), customer_name.strip(),
-         organization_name or None, customer_phone or None,
-         customer_mobile or None, customer_address or None),
+        (code, name, organization, phone, mobile,
+         _clean_optional(customer_address, "Address", 65535)),
         fetch="id",
     )
 
@@ -86,16 +116,19 @@ def get_customer_by_name(customer_name=None, organization_name=None):
 def update_customer(customer_id, customer_name, organization_name=None,
                     customer_phone=None, customer_mobile=None,
                     customer_address=None):
-    if not customer_id or not customer_name or not customer_name.strip():
-        raise ValueError("Customer ID and name are required.")
+    if not customer_id:
+        raise ValueError("Customer ID is required.")
+    _, name, organization, phone, mobile = _validate_customer(
+        "EXISTING", customer_name, organization_name,
+        customer_phone, customer_mobile,
+    )
     return bool(_run(
         """UPDATE customer_table
            SET customer_name=%s, organization_name=%s, customer_phone=%s,
                customer_mobile=%s, customer_address=%s
            WHERE customer_id=%s""",
-        (customer_name.strip(), organization_name or None,
-         customer_phone or None, customer_mobile or None,
-         customer_address or None, customer_id),
+        (name, organization, phone, mobile,
+         _clean_optional(customer_address, "Address", 65535), customer_id),
     ))
 
 
