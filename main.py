@@ -19,6 +19,7 @@ from PyQt5.QtCore import QDate
 import jdatetime
 from operation_crud import create_operation
 from customer_crud import get_all_customers
+from bank_crud import get_all_banks
 from PyQt5.QtWidgets import QFileDialog
 from check_crud import (
     create_check,
@@ -346,14 +347,7 @@ class MainApp(QMainWindow):
                 .toString("yyyy-MM-dd")
             )
             
-            bank_name = (
-                self.ui.comboBox_Banksaderkonandeh
-                .currentText()
-            )
-
-            # TODO:
-            # بعداً از bank_crud می‌گیریم
-            bank_id = None
+            bank_id = self.ui.comboBox_Banksaderkonandeh.currentData()
         
             front_image = self.save_front_image(check_code)
             back_image = self.save_back_image(check_code)
@@ -835,25 +829,24 @@ class MainApp(QMainWindow):
             
     def load_banks(self):
 
-        banks = [
-            "بانک ملی",
-            "بانک مهر ایران",
-            "بانک صادرات",
-            "بانک کشاورزی",
-            "بانک ملت",
-            "بانک مسکن",
-            "بانک تجارت"
-        ]
-
+        banks = get_all_banks()
         self.ui.comboBox_Banksaderkonandeh.clear()
 
         for bank in banks:
-            self.ui.comboBox_Banksaderkonandeh.addItem(bank)
+            self.ui.comboBox_Banksaderkonandeh.addItem(
+                bank["bank_name"], bank["bank_id"]
+            )
 
  #  --------------------------- جدول عملیات ------------------------------ 
     def save_operation(self):
-    
+        if self.selected_check_id is None:
+            QMessageBox.warning(self, "خطا", "ابتدا یک چک را جستجو کنید.")
+            return
+
         operation_code = generate_operation_code(self.selected_check_id)
+        if not operation_code:
+            QMessageBox.critical(self, "خطا", "تولید کد عملیات انجام نشد.")
+            return
 
         self.ui.lineEdit_Codemoshtari_2.setText(operation_code)
 
@@ -877,7 +870,7 @@ class MainApp(QMainWindow):
         self.ui.textEdit_Address_2.toPlainText().strip()
          )
 
-        create_operation(
+        operation_id = create_operation(
             self.selected_check_id,
             operation_code,
             operation_type,
@@ -887,16 +880,11 @@ class MainApp(QMainWindow):
             sayad_system_status
         )
     
-        print("قبل از پیام")
+        if not operation_id:
+            QMessageBox.warning(self, "خطا", "ثبت عملیات انجام نشد.")
+            return
 
         self.ui.lineEdit_Extar.setText("عملیات با موفقیت ثبت شد.")
-
-        print("بعد از پیام")
-
-        QTimer.singleShot(
-            3000,
-            self.clear_customer_fields
-        )
 
 
     def load_customers_to_operation(self):
