@@ -1,102 +1,72 @@
+"""CRUD operations for the bank lookup table."""
 from database import get_connection
 
 
-def create_bank(bank_name):
-    connection = get_connection()
-    if connection is None:
-        return False
-
-    try:
-        cursor = connection.cursor()
-        cursor.execute(
-            "INSERT INTO bank_table (bank_name) VALUES (%s)",
-            (bank_name,),
-        )
-        connection.commit()
-        return cursor.lastrowid
-    except Exception:
-        connection.rollback()
-        raise
-    finally:
-        cursor.close()
-        connection.close()
-
-
-def get_all_banks():
-    connection = get_connection()
-    if connection is None:
-        return []
-
-    try:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute(
-            "SELECT bank_id, bank_name FROM bank_table ORDER BY bank_name"
-        )
-        return cursor.fetchall()
-    finally:
-        cursor.close()
-        connection.close()
-
-
-def get_bank(bank_id):
+def _execute(query, values=(), *, fetch=None, dictionary=False):
     connection = get_connection()
     if connection is None:
         return None
-
+    cursor = None
     try:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute(
-            "SELECT * FROM bank_table WHERE bank_id=%s",
-            (bank_id,),
-        )
-        return cursor.fetchone()
+        cursor = connection.cursor(dictionary=True) if dictionary else connection.cursor()
+        cursor.execute(query, values)
+        if fetch == "one":
+            return cursor.fetchone()
+        if fetch == "all":
+            return cursor.fetchall()
+        connection.commit()
+        return cursor.lastrowid if fetch == "id" else cursor.rowcount
+    except Exception:
+        connection.rollback()
+        raise
     finally:
-        cursor.close()
+        if cursor is not None:
+            cursor.close()
         connection.close()
+
+
+def create_bank(bank_name):
+    name = (bank_name or "").strip()
+    if not name:
+        raise ValueError("Bank name is required.")
+    if len(name) > 120:
+        raise ValueError("Bank name cannot exceed 120 characters.")
+    return _execute(
+        "INSERT INTO bank_table (bank_name) VALUES (%s)", (name,), fetch="id"
+    )
+
+
+def get_all_banks():
+    return _execute(
+        "SELECT bank_id, bank_name FROM bank_table ORDER BY bank_name",
+        fetch="all", dictionary=True,
+    ) or []
+
+
+def get_bank(bank_id):
+    if not bank_id:
+        return None
+    return _execute(
+        "SELECT bank_id, bank_name FROM bank_table WHERE bank_id=%s",
+        (bank_id,), fetch="one", dictionary=True,
+    )
 
 
 def update_bank(bank_id, bank_name):
-    connection = get_connection()
-    if connection is None:
-        return False
-
-    try:
-        cursor = connection.cursor()
-        cursor.execute(
-            "UPDATE bank_table SET bank_name=%s WHERE bank_id=%s",
-            (bank_name, bank_id),
-        )
-        connection.commit()
-        return cursor.rowcount > 0
-    except Exception:
-        connection.rollback()
-        raise
-    finally:
-        cursor.close()
-        connection.close()
+    name = (bank_name or "").strip()
+    if not bank_id or not name:
+        raise ValueError("Bank ID and name are required.")
+    if len(name) > 120:
+        raise ValueError("Bank name cannot exceed 120 characters.")
+    return bool(_execute(
+        "UPDATE bank_table SET bank_name=%s WHERE bank_id=%s",
+        (name, bank_id),
+    ))
 
 
 def delete_bank(bank_id):
-    connection = get_connection()
-    if connection is None:
+    if not bank_id:
         return False
-
-    try:
-        cursor = connection.cursor()
-        cursor.execute(
-            "DELETE FROM bank_table WHERE bank_id=%s",
-            (bank_id,),
-        )
-        connection.commit()
-        return cursor.rowcount > 0
-    except Exception:
-        connection.rollback()
-        raise
-    finally:
-        cursor.close()
-        connection.close()
-
-
-if __name__ == "__main__":
-    for bank in get_all_banks():
-        print(bank)
+    return bool(_execute(
+        "DELETE FROM bank_table WHERE bank_id=%s", (bank_id,)
+    ))

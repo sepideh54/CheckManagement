@@ -23,7 +23,17 @@ CREATE TABLE IF NOT EXISTS bank_table (
     bank_name VARCHAR(120) NOT NULL,
     PRIMARY KEY (bank_id),
     UNIQUE KEY uq_bank_name (bank_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO bank_table (bank_name) VALUES
+    ('بانک ملی'),
+    ('بانک مهر ایران'),
+    ('بانک صادرات'),
+    ('بانک کشاورزی'),
+    ('بانک ملت'),
+    ('بانک مسکن'),
+    ('بانک تجارت')
+ON DUPLICATE KEY UPDATE bank_name = VALUES(bank_name);
 
 CREATE TABLE IF NOT EXISTS check_table (
     check_id INT NOT NULL AUTO_INCREMENT,
