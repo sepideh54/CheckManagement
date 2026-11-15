@@ -1,4 +1,5 @@
 """CRUD operations for cheques (checks)."""
+from datetime import date
 from decimal import Decimal, InvalidOperation
 from database import get_connection
 
@@ -44,13 +45,41 @@ def _validate_amount(amount):
     return numeric_amount
 
 
+def _validate_iso_date(value):
+    try:
+        parsed = date.fromisoformat(str(value))
+    except (TypeError, ValueError):
+        raise ValueError("Date must use the YYYY-MM-DD format.")
+    return parsed.isoformat()
+
+
+def _validate_identifier(value, field_name, *, optional=False):
+    if optional and value is None:
+        return None
+    try:
+        identifier = int(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"{field_name} must be a positive integer.")
+    if identifier <= 0:
+        raise ValueError(f"{field_name} must be a positive integer.")
+    return identifier
+
+
 def create_check(check_code, sayadi_number, customer_id, amount, due_date,
                  bank_id=None, front_image=None, back_image=None,
                  description=None):
-    if not all((check_code and check_code.strip(),
-                sayadi_number and sayadi_number.strip(),
-                customer_id, due_date)):
+    check_code = (check_code or "").strip()
+    sayadi_number = (sayadi_number or "").strip()
+    if not check_code or not sayadi_number or not customer_id or not due_date:
         raise ValueError("Check code, Sayadi number, customer and due date are required.")
+    if len(check_code) > 30 or len(sayadi_number) > 50:
+        raise ValueError("Check code or Sayadi number exceeds the supported length.")
+    customer_id = _validate_identifier(customer_id, "Customer ID")
+    bank_id = _validate_identifier(bank_id, "Bank ID", optional=True)
+    due_date = _validate_iso_date(due_date)
+    for path, field in ((front_image, "Front image path"), (back_image, "Back image path")):
+        if path is not None and len(str(path)) > 500:
+            raise ValueError(f"{field} cannot exceed 500 characters.")
     numeric_amount = _validate_amount(amount)
     return _execute(
         """INSERT INTO check_table
@@ -104,10 +133,19 @@ def get_check_by_sayadi(sayadi_number):
 def update_check(check_id, check_code, sayadi_number, customer_id, amount,
                  due_date, bank_id=None, front_image=None, back_image=None,
                  description=None):
-    if not all((check_id, check_code and check_code.strip(),
-                sayadi_number and sayadi_number.strip(),
-                customer_id, due_date)):
+    check_code = (check_code or "").strip()
+    sayadi_number = (sayadi_number or "").strip()
+    if not check_id or not check_code or not sayadi_number or not customer_id or not due_date:
         raise ValueError("Required check fields are missing.")
+    if len(check_code) > 30 or len(sayadi_number) > 50:
+        raise ValueError("Check code or Sayadi number exceeds the supported length.")
+    check_id = _validate_identifier(check_id, "Check ID")
+    customer_id = _validate_identifier(customer_id, "Customer ID")
+    bank_id = _validate_identifier(bank_id, "Bank ID", optional=True)
+    due_date = _validate_iso_date(due_date)
+    for path, field in ((front_image, "Front image path"), (back_image, "Back image path")):
+        if path is not None and len(str(path)) > 500:
+            raise ValueError(f"{field} cannot exceed 500 characters.")
     numeric_amount = _validate_amount(amount)
     return bool(_execute(
         """UPDATE check_table
