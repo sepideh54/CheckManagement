@@ -1,34 +1,55 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env python3
+"""Create a compressed, permission-restricted MySQL logical backup."""
+import gzip
+import os
+import shutil
+import subprocess
+from datetime import datetime
+from pathlib import Path
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT_DIR"
+from dotenv import dotenv_values
 
-if [[ ! -f .env ]]; then
-  echo "Missing .env file." >&2
-  exit 1
-fi
+ROOT = Path(__file__).resolve().parents[1]
+CONFIG = dotenv_values(ROOT / ".env")
+required = ("MYSQL_DATABASE", "MYSQL_USER", "MYSQL_PASSWORD")
+missing = [key for key in required if not CONFIG.get(key)]
+if missing:
+    raise SystemExit("Missing required .env settings: " + ", ".join(missing))
 
-set -a
-source .env
-set +a
+backup_dir = Path(os.environ.get("BACKUP_DIR", ROOT / "backups"))
+backup_dir.mkdir(parents=True, exist_ok=True)
+os.chmod(backup_dir, 0o700)
 
-: "${MYSQL_DATABASE:?MYSQL_DATABASE is required}"
-: "${MYSQL_USER:?MYSQL_USER is required}"
-: "${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}"
+stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+output = backup_dir / f"{CONFIG['MYSQL_DATABASE']}_{stamp}.sql.gz"
+env = os.environ.copy()
+env["MYSQL_PWD"] = CONFIG["MYSQL_PASSWORD"]
 
-BACKUP_DIR="${BACKUP_DIR:-$ROOT_DIR/backups}"
-mkdir -p "$BACKUP_DIR"
-chmod 700 "$BACKUP_DIR"
-STAMP="$(date +%Y%m%d_%H%M%S)"
-OUTPUT="$BACKUP_DIR/${MYSQL_DATABASE}_$STAMP.sql.gz"
+command = [
+    "mysqldump",
+    "--host=" + (CONFIG.get("MYSQL_HOST") or "127.0.0.1"),
+    "--port=" + (CONFIG.get("MYSQL_PORT") or "3306"),
+    "--user=" + CONFIG["MYSQL_USER"],
+    "--single-transaction",
+    "--routines",
+    "--triggers",
+    "--events",
+    CONFIG["MYSQL_DATABASE"],
+]
 
-MYSQL_PWD="$MYSQL_PASSWORD" mysqldump \
-  --host="${MYSQL_HOST:-127.0.0.1}" \
-  --port="${MYSQL_PORT:-3306}" \
-  --user="$MYSQL_USER" \
-  --single-transaction --routines --triggers --events \
-  "$MYSQL_DATABASE" | gzip > "$OUTPUT"
+try:
+    with output.open("wb") as raw_file:
+        with gzip.GzipFile(fileobj=raw_file, mode="wb") as compressed:
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, env=env)
+            assert process.stdout is not None
+            shutil.copyfileobj(process.stdout, compressed)
+            process.stdout.close()
+            return_code = process.wait()
+            if return_code != 0:
+                raise subprocess.CalledProcessError(return_code, command)
+    os.chmod(output, 0o600)
+except Exception:
+    output.unlink(missing_ok=True)
+    raise
 
-chmod 600 "$OUTPUT"
-echo "Backup created: $OUTPUT"
+print(f"Backup created: {output}")
