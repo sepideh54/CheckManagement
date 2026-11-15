@@ -12,6 +12,24 @@ class ValidationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             customer_crud.create_customer("", "Test")
 
+    def test_customer_code_length_matches_schema(self):
+        with self.assertRaises(ValueError):
+            customer_crud.create_customer("C" * 21, "Test")
+
+    def test_customer_name_length_matches_schema(self):
+        with self.assertRaises(ValueError):
+            customer_crud.create_customer("C001", "N" * 151)
+
+    def test_customer_optional_field_length_is_checked(self):
+        with self.assertRaises(ValueError):
+            customer_crud.create_customer(
+                "C001", "Test", organization_name="O" * 201
+            )
+
+    def test_bank_name_length_matches_schema(self):
+        with self.assertRaises(ValueError):
+            bank_crud.create_bank("B" * 121)
+
     def test_customer_search_requires_criteria(self):
         with self.assertRaises(ValueError):
             customer_crud.get_customer_by_name()
