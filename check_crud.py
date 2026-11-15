@@ -50,6 +50,8 @@ def _validate_iso_date(value):
         parsed = date.fromisoformat(str(value))
     except (TypeError, ValueError):
         raise ValueError("Date must use the YYYY-MM-DD format.")
+    if parsed.isoformat() != str(value):
+        raise ValueError("Date must use the YYYY-MM-DD format.")
     return parsed.isoformat()
 
 
