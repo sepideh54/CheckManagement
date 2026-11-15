@@ -26,17 +26,32 @@ def _execute(query, values=(), *, fetch=None, dictionary=False):
         connection.close()
 
 
+def _validate_amount(amount):
+    """Validate an amount against the check_table DECIMAL(18, 2) contract."""
+    if amount is None or (isinstance(amount, str) and not amount.strip()):
+        raise ValueError("Check amount is required.")
+    try:
+        numeric_amount = Decimal(str(amount).strip())
+    except (InvalidOperation, TypeError, ValueError):
+        raise ValueError("Check amount must be numeric.")
+
+    if not numeric_amount.is_finite() or numeric_amount <= 0:
+        raise ValueError("Check amount must be a finite value greater than zero.")
+    if numeric_amount > Decimal("9999999999999999.99"):
+        raise ValueError("Check amount exceeds the maximum supported value.")
+    if numeric_amount != numeric_amount.quantize(Decimal("0.01")):
+        raise ValueError("Check amount cannot contain more than two decimal places.")
+    return numeric_amount
+
+
 def create_check(check_code, sayadi_number, customer_id, amount, due_date,
                  bank_id=None, front_image=None, back_image=None,
                  description=None):
-    if not all((check_code, sayadi_number, customer_id, amount, due_date)):
-        raise ValueError("Check code, Sayadi number, customer, amount and due date are required.")
-    try:
-        numeric_amount = Decimal(str(amount))
-    except (InvalidOperation, TypeError, ValueError):
-        raise ValueError("Check amount must be numeric.")
-    if not numeric_amount.is_finite() or numeric_amount <= 0:
-        raise ValueError("Check amount must be a finite value greater than zero.")
+    if not all((check_code and check_code.strip(),
+                sayadi_number and sayadi_number.strip(),
+                customer_id, due_date)):
+        raise ValueError("Check code, Sayadi number, customer and due date are required.")
+    numeric_amount = _validate_amount(amount)
     return _execute(
         """INSERT INTO check_table
            (check_code, sayadi_number, customer_id, amount, due_date, bank_id,
@@ -89,14 +104,11 @@ def get_check_by_sayadi(sayadi_number):
 def update_check(check_id, check_code, sayadi_number, customer_id, amount,
                  due_date, bank_id=None, front_image=None, back_image=None,
                  description=None):
-    if not all((check_id, check_code, sayadi_number, customer_id, amount, due_date)):
+    if not all((check_id, check_code and check_code.strip(),
+                sayadi_number and sayadi_number.strip(),
+                customer_id, due_date)):
         raise ValueError("Required check fields are missing.")
-    try:
-        numeric_amount = float(amount)
-    except (TypeError, ValueError):
-        raise ValueError("Check amount must be numeric.")
-    if numeric_amount <= 0:
-        raise ValueError("Check amount must be greater than zero.")
+    numeric_amount = _validate_amount(amount)
     return bool(_execute(
         """UPDATE check_table
            SET check_code=%s, sayadi_number=%s, customer_id=%s, amount=%s,
