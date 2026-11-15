@@ -33,7 +33,7 @@ sudo systemctl enable --now mysql
 sudo mysql < schema.sql
 ```
 
-Create a dedicated application user (replace the sample password with a strong, unique one):
+Create a dedicated application user for the default TCP host `127.0.0.1` (replace the sample password with a strong, unique one):
 
 ```bash
 sudo mysql
@@ -42,14 +42,16 @@ sudo mysql
 Then, at the MySQL prompt:
 
 ```sql
-CREATE USER 'check_manager'@'localhost' IDENTIFIED BY 'REPLACE_WITH_A_STRONG_PASSWORD';
+CREATE USER 'check_manager'@'127.0.0.1' IDENTIFIED BY 'REPLACE_WITH_A_STRONG_PASSWORD';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES
-ON check_management.* TO 'check_manager'@'localhost';
+ON check_management.* TO 'check_manager'@'127.0.0.1';
 FLUSH PRIVILEGES;
 EXIT;
 ```
 
-If the application connects over TCP to `127.0.0.1`, create the matching user host as well, or set `MYSQL_HOST=localhost` in `.env`.
+If you set `MYSQL_HOST=localhost` in `.env`, create the corresponding MySQL account as `'check_manager'@'localhost'` too.
+
+**Security:** A database password was previously committed in the repository's Git history. The current code no longer contains it, but removing it from the latest version does not erase historical commits. Rotate that old database password immediately and do not reuse it.
 
 **Existing data:** `schema.sql` creates the initial empty schema; it does not migrate or restore data from another computer. Back up and transfer the existing database separately before using this setup on a machine that already contains important records.
 
