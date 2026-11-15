@@ -29,6 +29,8 @@ def create_bank(bank_name):
     name = (bank_name or "").strip()
     if not name:
         raise ValueError("Bank name is required.")
+    if len(name) > 120:
+        raise ValueError("Bank name cannot exceed 120 characters.")
     return _execute(
         "INSERT INTO bank_table (bank_name) VALUES (%s)", (name,), fetch="id"
     )
@@ -54,6 +56,8 @@ def update_bank(bank_id, bank_name):
     name = (bank_name or "").strip()
     if not bank_id or not name:
         raise ValueError("Bank ID and name are required.")
+    if len(name) > 120:
+        raise ValueError("Bank name cannot exceed 120 characters.")
     return bool(_execute(
         "UPDATE bank_table SET bank_name=%s WHERE bank_id=%s",
         (name, bank_id),
