@@ -4,13 +4,13 @@ Desktop cheque and customer management application built with Python, PyQt5 and 
 
 ## Supported platform
 
-- **Recommended:** Windows 10 (64-bit), Python 3.10–3.13, MySQL Server 8.0.
-- Ubuntu/Linux with Python 3.10–3.13 and MySQL Server 8.0.
+- **Recommended:** Windows 10 (64-bit), Python 3.12, MySQL Server 8.0.
+- Ubuntu/Linux with Python 3.12 and MySQL Server 8.0.
 - **Windows 7 is not a supported target for this setup.** Current Python and MySQL releases no longer provide a reliable supported installation path for Windows 7. Use Windows 10 or newer.
 
 ## Windows 10 installation
 
-1. Install 64-bit Python 3.10–3.13 from [python.org](https://www.python.org/downloads/windows/). Enable the Python launcher during installation.
+1. Install 64-bit Python 3.12 from [python.org](https://www.python.org/downloads/windows/). Enable the Python launcher during installation.
 2. Install MySQL Server 8.0 using the [official MySQL Installer](https://dev.mysql.com/downloads/installer/). Remember the MySQL administrator password.
 3. Open Command Prompt or PowerShell and clone the repository:
 
@@ -52,7 +52,7 @@ EXIT;
 
 ## Ubuntu/Linux installation
 
-Install Python 3.10–3.13, MySQL Server 8.0 and Git, then run:
+Install Python 3.12, MySQL Server 8.0 and Git, then run:
 
 ```bash
 git clone https://github.com/sepideh54/CheckManagement.git
